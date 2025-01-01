@@ -70,9 +70,26 @@ class PromptStorage {
   }
 
   async deletePrompt(id: string): Promise<void> {
-    const { prompts } = await this.getStorageData();
-    const updatedPrompts = prompts.filter((prompt: Prompt) => prompt.id !== id);
-    await chrome.storage.sync.set({ prompts: updatedPrompts });
+    console.log(`[Storage] Attempting to delete prompt: ${id}`);
+    try {
+      const { prompts } = await this.getStorageData();
+      console.log(`[Storage] Current prompts count: ${prompts.length}`);
+      
+      const promptToDelete = prompts.find((p) => p.id === id);
+      if (!promptToDelete) {
+        console.error(`[Storage] Prompt with id ${id} not found`);
+        throw new Error(`Prompt with id ${id} not found`);
+      }
+
+      const updatedPrompts = prompts.filter((prompt: Prompt) => prompt.id !== id);
+      console.log(`[Storage] Filtered prompts count: ${updatedPrompts.length}`);
+      
+      await chrome.storage.sync.set({ prompts: updatedPrompts });
+      console.log(`[Storage] Successfully deleted prompt: ${id}`);
+    } catch (error) {
+      console.error(`[Storage] Error in deletePrompt:`, error);
+      throw error; // Re-throw to handle in the UI layer
+    }
   }
 
   async incrementUseCount(id: string): Promise<void> {
