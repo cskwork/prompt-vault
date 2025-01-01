@@ -10,6 +10,7 @@ const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [newPrompt, setNewPrompt] = useState({
     title: '',
     content: '',
@@ -34,21 +35,24 @@ const App = () => {
   const handleAddOrUpdatePrompt = async () => {
     if (!newPrompt.title || !newPrompt.content) return;
 
+    const finalCategory = newPrompt.category === 'new' ? newCategoryName : newPrompt.category;
+    
     if (editingPrompt) {
       await promptStorage.updatePrompt(editingPrompt.id, {
         title: newPrompt.title,
         content: newPrompt.content,
-        category: newPrompt.category
+        category: finalCategory
       });
     } else {
       await promptStorage.addPrompt(
         newPrompt.title,
         newPrompt.content,
-        newPrompt.category
+        finalCategory
       );
     }
 
     setNewPrompt({ title: '', content: '', category: 'General' });
+    setNewCategoryName('');
     setEditingPrompt(null);
     setIsModalOpen(false);
     await loadPrompts();
@@ -179,6 +183,7 @@ const App = () => {
           setIsModalOpen(false);
           setEditingPrompt(null);
           setNewPrompt({ title: '', content: '', category: 'General' });
+          setNewCategoryName('');
         }}
         title={editingPrompt ? 'Edit Prompt' : 'Add New Prompt'}
       >
@@ -224,7 +229,8 @@ const App = () => {
               </label>
               <input
                 type="text"
-                onChange={(e) => setNewPrompt(prev => ({ ...prev, category: e.target.value }))}
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
                 className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter new category name"
                 autoFocus
@@ -237,6 +243,7 @@ const App = () => {
                 setIsModalOpen(false);
                 setEditingPrompt(null);
                 setNewPrompt({ title: '', content: '', category: 'General' });
+                setNewCategoryName('');
               }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
@@ -244,7 +251,7 @@ const App = () => {
             </button>
             <button
               onClick={handleAddOrUpdatePrompt}
-              disabled={!newPrompt.title || !newPrompt.content}
+              disabled={!newPrompt.title || !newPrompt.content || (newPrompt.category === 'new' && !newCategoryName)}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {editingPrompt ? 'Update' : 'Save'}
