@@ -70,8 +70,16 @@ const App = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await promptStorage.deletePrompt(id);
-    await loadPrompts();
+    console.log(`[App] Delete request received for prompt: ${id}`);
+    try {
+      await promptStorage.deletePrompt(id);
+      console.log(`[App] Successfully deleted prompt: ${id}`);
+      await loadPrompts();
+      console.log('[App] Prompts reloaded after deletion');
+    } catch (error) {
+      console.error(`[App] Error deleting prompt ${id}:`, error);
+      // TODO: Add user-facing error notification if needed
+    }
   };
 
   const handleCopy = async (prompt: Prompt) => {

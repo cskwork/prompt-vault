@@ -19,11 +19,17 @@ export const PromptCard = ({ prompt, onEdit, onDelete, onCopy }: PromptCardProps
   };
 
   const handleDelete = () => {
+    console.log(`[PromptCard] Delete initiated for prompt: ${prompt.id}`);
     if (showConfirmDelete) {
+      console.log(`[PromptCard] Confirmation received, calling onDelete for prompt: ${prompt.id}`);
       onDelete(prompt.id);
     } else {
+      console.log(`[PromptCard] First delete click, showing confirmation for prompt: ${prompt.id}`);
       setShowConfirmDelete(true);
-      setTimeout(() => setShowConfirmDelete(false), 3000);
+      setTimeout(() => {
+        setShowConfirmDelete(false);
+        console.log(`[PromptCard] Delete confirmation timed out for prompt: ${prompt.id}`);
+      }, 3000);
     }
   };
 
@@ -82,7 +88,7 @@ export const PromptCard = ({ prompt, onEdit, onDelete, onCopy }: PromptCardProps
           </button>
           <button
             onClick={handleDelete}
-            className={`p-1.5 rounded transition-colors ${
+            className={`p-1.5 rounded transition-colors relative ${
               showConfirmDelete
                 ? 'text-red-500 bg-red-50'
                 : 'text-gray-500 hover:text-red-500 hover:bg-red-50'
@@ -102,6 +108,11 @@ export const PromptCard = ({ prompt, onEdit, onDelete, onCopy }: PromptCardProps
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
               />
             </svg>
+            {showConfirmDelete && (
+              <div className="absolute top-1/2 right-full -translate-y-1/2 mr-2 bg-red-500 text-white text-xs py-1 px-2 rounded whitespace-nowrap">
+                Click again to delete
+              </div>
+            )}
           </button>
         </div>
       </div>
