@@ -88,6 +88,50 @@ const App = () => {
     await loadPrompts();
   };
 
+  const handleExport = async () => {
+    try {
+      const exportData = await promptStorage.exportPrompts();
+      const blob = new Blob([exportData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `prompt-vault-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export failed:', error);
+      // You might want to show this error in the UI
+    }
+  };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const result = await promptStorage.importPrompts(text);
+      
+      if (result.success) {
+        // Reload prompts and categories after successful import
+        await loadPrompts();
+        await loadCategories();
+      } else {
+        console.error('Import failed:', result.message);
+        // You might want to show this error in the UI
+      }
+    } catch (error) {
+      console.error('Import failed:', error);
+      // You might want to show this error in the UI
+    }
+    
+    // Reset the input
+    event.target.value = '';
+  };
+
   const filteredPrompts = prompts
     .filter(prompt => {
       const matchesSearch = 
@@ -102,7 +146,45 @@ const App = () => {
   return (
     <div className="w-[400px] h-[600px] flex flex-col bg-gray-50">
       <div className="p-4 bg-white border-b shadow-sm">
-        <h1 className="text-xl font-bold mb-4">Prompt Vault</h1>
+        <div className="flex justify-between items-center mb-4">
+        <h1 className="text-base font-bold text-gray-900 whitespace-nowrap">Prompt Vault</h1>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleExport}
+              className="px-2 py-1 text-xs font-medium bg-gray-50 text-gray-700 rounded-md border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 flex items-center"
+            >
+              <svg className="w-2 h-2 mr-1" fill="none" stroke="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Export
+            </button>
+            <label className="px-2 py-1 text-xs font-medium bg-gray-50 text-gray-700 rounded-md border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 cursor-pointer flex items-center">
+              <svg className="w-2 h-2 mr-1" fill="none" stroke="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Import
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
+            </label>
+            <button
+              onClick={() => {
+                setEditingPrompt(null);
+                setNewPrompt({ title: '', content: '', category: 'General' });
+                setIsModalOpen(true);
+              }}
+              className="px-2 py-1 text-sm font-medium bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100 hover:bg-indigo-100 hover:border-indigo-200 transition-all duration-200 flex items-center"
+            >
+              <svg className="w-2 h-2 mr-1" fill="none" stroke="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Prompt
+            </button>
+          </div>
+        </div>
         <div className="flex gap-2 mb-4">
           <div className="relative flex-1">
             <input
@@ -126,16 +208,6 @@ const App = () => {
               />
             </svg>
           </div>
-          <button 
-            onClick={() => {
-              setEditingPrompt(null);
-              setNewPrompt({ title: '', content: '', category: 'General' });
-              setIsModalOpen(true);
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-          >
-            Add New
-          </button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300">
@@ -170,7 +242,7 @@ const App = () => {
           <div className="text-gray-500 text-center py-8">
             {searchQuery
               ? 'No prompts found matching your search.'
-              : 'No prompts yet. Click "Add New" to create one.'}
+              : 'No prompts yet. Click "Add Prompt" to create one.'}
           </div>
         ) : (
           filteredPrompts.map(prompt => (
