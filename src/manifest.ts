@@ -10,7 +10,11 @@ export default defineManifest({
   description: 'A Chrome extension for managing and organizing custom prompts',
   permissions: ['storage', 'contextMenus', 'clipboardWrite'],
   action: {
-    default_popup: 'src/popup/index.html'
+    default_popup: 'src/popup/index.html',
+    default_icon: 'icons/icon-1.png'
+  },
+  icons: {
+    "128": "icons/icon-1.png"
   },
   web_accessible_resources: [{
     resources: ['src/popup/index.html'],
