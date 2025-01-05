@@ -12,6 +12,10 @@ export default defineManifest({
   action: {
     default_popup: 'src/popup/index.html'
   },
+  web_accessible_resources: [{
+    resources: ['src/popup/index.html'],
+    matches: ['<all_urls>']
+  }],
   background: {
     service_worker: 'src/background/index.ts',
     type: 'module'

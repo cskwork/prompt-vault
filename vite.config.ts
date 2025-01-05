@@ -16,14 +16,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        popup: 'src/popup/index.html',
-        background: 'src/background/index.ts',
+        popup: 'src/popup/index.html'
       },
       output: {
-        chunkFileNames: '[name].[hash].js',
-        assetFileNames: '[name].[hash].[ext]',
         entryFileNames: '[name].js',
-      },
-    },
-  },
+        chunkFileNames: '[name].[hash].js',
+        assetFileNames: '[name].[hash].[ext]'
+      }
+    }
+  }
 });
