@@ -36,16 +36,6 @@ prompt-vault/
 npm install
 ```
 
-2. Start development server:
-```bash
-npm run dev
-```
-
-3. Build for production:
-```bash
-npm run build
-```
-
 ## Loading the Extension
 
 1. Build the extension:
@@ -63,4 +53,4 @@ npm run build
 2. Use the search bar to find specific prompts
 3. Organize prompts by categories
 4. Access recently used prompts in the "Recent" tab
-5. Right-click to quickly access prompts from the context menu
+5. Right-click to quickly access prompts from the conte xt menu
